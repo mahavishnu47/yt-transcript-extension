@@ -1,0 +1,284 @@
+/* YouTube Transcript & AI Toolkit Styles */
+
+/* Main panel container */
+#yt-transcript-ai-toolkit {
+  position: fixed;
+  top: 70px;
+  right: 20px;
+  width: 380px;
+  max-width: 90vw;
+  height: calc(100vh - 100px);
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-family: Roboto, Arial, sans-serif;
+}
+
+/* Toggle button */
+#yt-transcript-toggle {
+  background-color: #065fd4;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin: 12px 0;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+#yt-transcript-toggle:hover {
+  background-color: #0448a2;
+}
+
+/* Header */
+.yt-transcript-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid #e0e0e0;
+  background-color: #f9f9f9;
+}
+
+.yt-transcript-header h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+  color: #030303;
+}
+
+.yt-transcript-controls {
+  display: flex;
+  gap: 8px;
+}
+
+/* Tabs */
+.yt-transcript-tabs {
+  display: flex;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.yt-tab-button {
+  flex: 1;
+  padding: 10px;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  color: #606060;
+  transition: background-color 0.2s, color 0.2s;
+  border-bottom: 2px solid transparent;
+}
+
+.yt-tab-button:hover {
+  background-color: #f0f0f0;
+}
+
+.yt-tab-button.active {
+  color: #065fd4;
+  border-bottom-color: #065fd4;
+  font-weight: 500;
+}
+
+/* Tab content */
+.yt-tab-content {
+  display: none;
+  flex: 1;
+  overflow: auto;
+  padding: 16px;
+}
+
+.yt-tab-content.active {
+  display: block;
+}
+
+/* Transcript container */
+.yt-transcript-container {
+  max-height: 100%;
+  overflow-y: auto;
+}
+
+.transcript-segment {
+  display: flex;
+  margin-bottom: 12px;
+  gap: 12px;
+}
+
+.timestamp {
+  min-width: 40px;
+  color: #606060;
+  font-size: 14px;
+}
+
+.text {
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* Summary styles */
+.yt-summary-controls {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.yt-summary-container {
+  background-color: #f9f9f9;
+  border-radius: 4px;
+  padding: 12px;
+  max-height: calc(100% - 50px);
+  overflow-y: auto;
+}
+
+.yt-summary-result {
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.yt-summary-result h1,
+.yt-summary-result h2,
+.yt-summary-result h3 {
+  margin-top: 1em;
+  margin-bottom: 0.5em;
+  font-weight: 500;
+}
+
+.yt-summary-result h1 {
+  font-size: 18px;
+}
+
+.yt-summary-result h2 {
+  font-size: 16px;
+}
+
+.yt-summary-result h3 {
+  font-size: 14px;
+}
+
+.yt-summary-result ul,
+.yt-summary-result ol {
+  padding-left: 20px;
+  margin: 10px 0;
+}
+
+.yt-summary-result ul li,
+.yt-summary-result ol li {
+  margin-bottom: 6px;
+}
+
+/* Chat styles */
+.yt-chat-messages {
+  height: calc(100% - 70px);
+  overflow-y: auto;
+  margin-bottom: 12px;
+}
+
+.chat-message {
+  margin-bottom: 12px;
+  max-width: 85%;
+  clear: both;
+}
+
+.user-message {
+  float: right;
+}
+
+.user-message .message-content {
+  background-color: #065fd4;
+  color: white;
+  border-radius: 18px 18px 4px 18px;
+}
+
+.assistant-message {
+  float: left;
+}
+
+.assistant-message .message-content {
+  background-color: #f1f1f1;
+  color: #030303;
+  border-radius: 18px 18px 18px 4px;
+}
+
+.message-content {
+  padding: 10px 14px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.yt-chat-input {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  right: 16px;
+}
+
+.yt-chat-input textarea {
+  flex: 1;
+  min-height: 40px;
+  max-height: 100px;
+  border: 1px solid #e0e0e0;
+  border-radius: 20px;
+  padding: 10px 14px;
+  font-size: 14px;
+  resize: none;
+  font-family: inherit;
+}
+
+.yt-chat-input textarea:focus {
+  outline: none;
+  border-color: #065fd4;
+}
+
+/* Mindmap styles */
+.yt-mindmap-container {
+  margin-top: 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  height: calc(100% - 60px);
+  overflow: hidden;
+}
+
+/* Tutorial document styles */
+.tutorial-document {
+  background-color: #f9f9f9;
+  border-radius: 4px;
+  padding: 12px;
+  margin-bottom: 16px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+/* Button styles */
+.yt-button {
+  background-color: #065fd4;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.yt-button:hover {
+  background-color: #0448a2;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  #yt-transcript-ai-toolkit {
+    width: 90vw;
+    height: 80vh;
+    left: 5vw;
+    right: 5vw;
+    top: 10vh;
+  }
+}

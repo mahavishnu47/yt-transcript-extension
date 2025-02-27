@@ -1,0 +1,23 @@
+lockfileVersion: '9.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+importers:
+
+  .:
+    dependencies:
+      '@google/generative-ai':
+        specifier: ^0.22.0
+        version: 0.22.0
+
+packages:
+
+  '@google/generative-ai@0.22.0':
+    resolution: {integrity: sha512-mLR3PDWCk5O/BWNyDvFDIiwKeXQmFGZ+kJFd9m73QrUPCFREttJyVbBPTW4y9CwTbaltLMDaLDfroCrRv5Bl8Q==}
+    engines: {node: '>=18.0.0'}
+
+snapshots:
+
+  '@google/generative-ai@0.22.0': {}

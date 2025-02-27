@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YouTube Transcript & AI Toolkit</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      width: 320px;
+      padding: 16px;
+      margin: 0;
+    }
+    
+    h1 {
+      font-size: 18px;
+      margin-top: 0;
+      color: #333;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 10px;
+    }
+    
+    .section {
+      margin-bottom: 16px;
+    }
+    
+    .section-title {
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+    
+    .form-group {
+      margin-bottom: 12px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 14px;
+    }
+    
+    .form-group input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    
+    .toggle-group {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    
+    .toggle-label {
+      font-size: 14px;
+    }
+    
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 40px;
+      height: 20px;
+    }
+    
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 20px;
+    }
+    
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 16px;
+      width: 16px;
+      left: 2px;
+      bottom: 2px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+    
+    input:checked + .slider {
+      background-color: #2196F3;
+    }
+    
+    input:checked + .slider:before {
+      transform: translateX(20px);
+    }
+    
+    button {
+      background-color: #2196F3;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      display: inline-block;
+    }
+    
+    button:hover {
+      background-color: #0b7dda;
+    }
+    
+    button:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+    }
+    
+    .status {
+      margin-top: 8px;
+      font-size: 14px;
+    }
+    
+    .success {
+      color: #28a745;
+    }
+    
+    .error {
+      color: #dc3545;
+    }
+    
+    .helper-text {
+      font-size: 12px;
+      color: #666;
+      margin-top: 4px;
+    }
+    
+    .footer {
+      font-size: 12px;
+      color: #666;
+      margin-top: 16px;
+      text-align: center;
+      border-top: 1px solid #eee;
+      padding-top: 12px;
+    }
+    
+    /* Spinner for loading state */
+    .spinner {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border: 2px solid rgba(255,255,255,.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 1s ease-in-out infinite;
+      margin-right: 6px;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* API Key info section */
+    .api-info {
+      background-color: #f8f9fa;
+      border-left: 3px solid #2196F3;
+      padding: 8px 12px;
+      margin-top: 12px;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+  <h1>YouTube Transcript & AI Toolkit</h1>
+  
+  <div class="section">
+    <div class="toggle-group">
+      <span class="toggle-label">Show Transcript Panel</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="toggle-transcript">
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="toggle-group">
+      <span class="toggle-label">Auto-Show Transcript</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="toggle-auto-show">
+        <span class="slider"></span>
+      </label>
+    </div>
+  </div>
+  
+  <div class="section">
+    <div class="section-title">API Key Settings</div>
+    <div class="form-group">
+      <label for="api-key">Google AI Studio API Key:</label>
+      <input type="password" id="api-key" placeholder="Enter your API key">
+      <div class="helper-text">Get your API key from <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a></div>
+    </div>
+    <button id="save-api-key">Save API Key</button>
+    <button id="validate-api-key">Test API Key</button>
+    <div id="api-key-status" class="status"></div>
+    
+    <div class="api-info">
+      <strong>How to get an API Key:</strong>
+      <ol>
+        <li>Go to <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a></li>
+        <li>Create or sign in to your Google account</li>
+        <li>Click "Get API key" and create a new key</li>
+        <li>Copy the key and paste it above</li>
+      </ol>
+    </div>
+  </div>
+  
+  <div class="footer">
+    <div>YouTube Transcript & AI Toolkit v1.0.0</div>
+  </div>
+
+  <button id="testConnection">Test Connection</button>
+  
+  <script src="popup.js"></script>
+</body>
+</html>
