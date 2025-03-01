@@ -1,112 +1,349 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Extension Capabilities</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 10px;
-      background: #f8f8f8;
-    }
-    .sidepanel {
-      width: 100%;
-      background: #fff;
-      padding: 15px;
-      box-sizing: border-box;
-    }
-    .sidepanel h2 {
-      margin-top: 0;
-      font-size: 18px;
-      border-bottom: 1px solid #ddd;
-      padding-bottom: 10px;
-    }
-    .capability {
-      margin-bottom: 15px;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      background: #e7f4e4;
-    }
-    .close-button {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: transparent;
-      border: none;
-      font-size: 18px;
-      cursor: pointer;
-      color: #777;
-    }
-    .close-button:hover {
-      color: #333;
-    }
-    .transcript-container {
-      position: relative;
-    }
-    .transcript-textarea {
-      width: 100%;
-      min-height: 200px;
-      max-height: 400px;
-      padding: 8px;
-      margin-top: 8px;
-      border: 1px solid #e0e0e0;
-      border-radius: 4px;
-      font-family: 'Roboto', Arial, sans-serif;
-      font-size: 14px;
-      line-height: 1.5;
-      overflow-y: auto;
-      resize: vertical;
-      box-sizing: border-box;
-    }
-    .copy-button {
-      position: absolute;
-      top: 0;
-      right: 0;
-      background-color: #065fd4;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      padding: 4px 8px;
-      font-size: 12px;
-      cursor: pointer;
-      transition: background-color 0.2s;
-    }
-    .copy-button:hover {
-      background-color: #0448a2;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <title>YouTube Toolkit</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f8f8f8;
+            color: #333;
+            font-size: 14px;
+        }
+        .yt-ai-toolkit-sidepanel {
+            width: 300px;
+            background: #fff;
+            box-sizing: border-box;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .panel-header {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .panel-header h3 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: bold;
+            line-height: 1.2;
+        }
+
+        .panel-header .channel-name {
+            font-size: 12px;
+            color: #777;
+            margin-top: 5px;
+            line-height: 1;
+        }
+
+        .panel-controls {
+            align-self: flex-end;
+            margin-top: -25px;
+        }
+
+        .panel-controls button {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: #777;
+            margin-left: 5px;
+        }
+
+        .panel-controls button:hover {
+            color: #333;
+        }
+
+        .panel-content {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .panel-section {
+            margin-bottom: 20px;
+        }
+
+        .panel-section h4 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        #transcript-container {
+            background: #f0f0f0;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            min-height: 100px;
+        }
+
+        #transcript-content-textarea { /* Style for Textarea */
+            width: 100%;
+            min-height: 200px;
+            max-height: 400px;
+            padding: 8px;
+            border: none; /* No border for textarea, border is on container */
+            border-radius: 0; /* No border radius for textarea */
+            font-family: 'Roboto', Arial, sans-serif;
+            font-size: 13px;
+            line-height: 1.5;
+            overflow-y: auto; /* Enable vertical scrolling */
+            resize: vertical; /* Allow vertical resize */
+            box-sizing: border-box;
+            background-color: transparent; /* Make textarea background transparent */
+            outline: none; /* Remove default focus outline */
+        }
+
+
+        #ai-result-container {
+            background: #f0f0f0;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            min-height: 150px;
+        }
+
+        .section-actions button, .panel-footer button {
+            background-color: #065fd4;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 8px 15px;
+            font-size: 14px;
+            cursor: pointer;
+            margin-right: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .section-actions button:hover, .panel-footer button:hover {
+            background-color: #0044aa;
+        }
+
+        .panel-footer {
+            border-top: 1px solid #eee;
+            padding-top: 10px;
+            text-align: right;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            font-size: 13px;
+            color: #555;
+        }
+
+        .status-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 5px;
+            background-color: #ccc; /* Default gray */
+        }
+
+        .status-dot.active {
+            background-color: #4CAF50; /* Green for active/valid */
+        }
+        .copy-success {
+            background-color: #4CAF50 !important;
+        }
+
+        .copy-error {
+            background-color: #f44336 !important;
+        }
+
+        #ai-loading {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 5px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 10;
+        }
+
+        .loading-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            color: #777;
+        }
+
+
+        .spinner {
+            display: inline-block;
+            margin-left: 5px;
+            width: 14px;
+            height: 14px;
+            border: 2px solid #ccc;
+            border-top-color: #333;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Ensure loading indicator can be properly hidden */
+        #loading-transcript {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            color: #777;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(240, 240, 240, 0.9);
+            border-radius: 5px;
+            z-index: 10;
+        }
+        
+        #loading-transcript.hidden {
+            display: none !important;
+        }
+
+        /* Enhanced markdown styling */
+        .ai-result-content {
+            font-family: 'Roboto', Arial, sans-serif;
+            line-height: 1.5;
+            color: #333;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .ai-result-content h1 {
+            font-size: 20px;
+            margin-top: 10px;
+            margin-bottom: 8px;
+            color: #065fd4;
+        }
+
+        .ai-result-content h2 {
+            font-size: 18px;
+            margin-top: 8px;
+            margin-bottom: 6px;
+            color: #065fd4;
+        }
+
+        .ai-result-content h3 {
+            font-size: 16px;
+            margin-top: 6px;
+            margin-bottom: 4px;
+            color: #065fd4;
+        }
+
+        .ai-result-content ul, .ai-result-content ol {
+            padding-left: 20px;
+            margin: 8px 0;
+        }
+
+        .ai-result-content li {
+            margin-bottom: 4px;
+        }
+
+        .ai-result-content blockquote {
+            border-left: 3px solid #065fd4;
+            padding-left: 10px;
+            margin-left: 0;
+            margin-right: 0;
+            color: #555;
+            font-style: italic;
+        }
+
+        .ai-result-content code {
+            background-color: #f0f0f0;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+    </style>
 </head>
 <body>
-  <div class="sidepanel">
-    <button class="close-button" onclick="closeSidePanel()">&times;</button>
-    <h2>Extension Capabilities</h2>
-    <div class="capability">
-      <strong>API Key Status:</strong>
-      <p id="apiKeyStatus">Not validated</p>
+<div id="yt-ai-toolkit-panel" class="yt-ai-toolkit-sidepanel">
+    <div class="panel-header">
+        <div>
+            <h3 id="video-title">Loading Video Title...</h3>
+            <div id="channel-name" class="channel-name">Loading Channel...</div>
+        </div>
+        <div class="panel-controls">
+            <button id="panel-minimize" class="panel-btn" title="Minimize">−</button>
+            <button id="panel-close" class="panel-btn" title="Close">×</button>
+        </div>
     </div>
-    <div class="capability">
-      <strong>YouTube Video Info:</strong>
-      <p id="videoInfo">No video detected.</p>
+
+    <div class="panel-content">
+        <div class="panel-section" id="transcriptSection">
+            <h4>Transcript</h4>
+            <div id="transcript-container" class="transcript-container">
+                <div id="loading-transcript" class="loading-indicator">
+                    Loading transcript...
+                    <span class="spinner"></span>
+                </div>
+                <textarea id="transcript-content-textarea" placeholder="Transcript will appear here..." readonly></textarea>
+            </div>
+            <div class="section-actions">
+                <button id="copy-transcript" class="action-btn">Copy</button>
+                <button id="summarize-transcript" class="action-btn">Summarize</button>
+            </div>
+        </div>
+
+
+        <div class="panel-section" id="resultSection">
+            <h4>AI Summary</h4>
+            <div id="ai-result-container" class="ai-result-container">
+                <div id="ai-result-placeholder" class="placeholder-text">
+                    Click 'Summarize' to generate an AI summary of the transcript
+                </div>
+                <div id="ai-result-content" class="ai-result-content"></div>
+                <div id="ai-loading">
+                    <span class="spinner"></span>
+                    <div>Generating AI summary...</div>
+                </div>
+            </div>
+            <div class="section-actions">
+                <button id="copy-ai-result" class="action-btn">Copy Summary</button>
+                <button id="regenerate-ai-result" class="action-btn">Regenerate</button>
+            </div>
+        </div>
     </div>
-    <div class="capability">
-      <strong>Transcript:</strong>
-      <div class="transcript-container">
-        <textarea id="transcriptText" class="transcript-textarea" readonly>Transcript will appear here.</textarea>
-        <button id="copyTranscript" class="copy-button">Copy</button>
-      </div>
+
+    <div class="panel-footer">
+        <div class="status-indicator" id="api-key-status">
+            <span class="status-dot"></span>API Key Status: <span id="api-status-text">Valid</span>
+        </div>
+        <button id="panel-settings" class="panel-btn" title="Settings">⚙️</button>
     </div>
-    <div class="capability">
-      <strong>Hand Gesture Music:</strong>
-      <p>Access advanced hand gesture music features.</p>
-    </div>
-    <div class="capability">
-      <strong>Bird Shooter Game:</strong>
-      <p>Switch to game mode for interactive play.</p>
-    </div>
-    <!-- More capability info as needed -->
-  </div>
-  <script src="sidepanel.js"></script>
+</div>
+<script src="sidepanel.js"></script>
 </body>
 </html>

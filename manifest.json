@@ -1,27 +1,25 @@
 {
   "manifest_version": 3,
-  "name": "YouTube Transcript & AI Toolkit",
+  "name": "YouTube Transcript AI Toolkit",
   "version": "1.0.0",
-  "description": "Access and manipulate YouTube video transcripts with AI-powered features",
+  "description": "Extract YouTube transcripts and process them with AI",
   "permissions": [
-    "activeTab",
     "storage",
+    "tabs",
     "clipboardWrite",
-    "scripting",
-    "identity"
+    "scripting"
   ],
   "host_permissions": [
-    "https://*.youtube.com/*",
-    "https://*.googleapis.com/*"
+    "https://*.youtube.com/*"
   ],
   "background": {
-    "service_worker": "background-worker.js"
+    "service_worker": "background.js"
   },
   "content_scripts": [
     {
-      "matches": ["*://*.youtube.com/*"],
+      "matches": ["https://*.youtube.com/*"],
       "js": ["content.js"],
-      "css": ["content.css"]
+      "run_at": "document_idle"
     }
   ],
   "action": {
@@ -39,10 +37,13 @@
   },
   "web_accessible_resources": [
     {
-      "resources": ["googleai.js", "sidepanel.html", "sidepanel.js"],
-      "matches": ["*://*.youtube.com/*"]
+      "resources": ["sidepanel.html", "sidepanel.js"],
+      "matches": ["https://*.youtube.com/*"]
     }
   ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  },
   "oauth2": {
     "client_id": "<YOUR_CLIENT_ID>.apps.googleusercontent.com",
     "scopes": [
