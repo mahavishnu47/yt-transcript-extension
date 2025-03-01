@@ -1,3 +1,4 @@
+import { summarize } from "./prompts";
 // Add a message bridge utility at the top of the file
 const ChromeBridge = {
     requestId: 0,
@@ -263,8 +264,8 @@ function requestSummary(transcriptText, buttonElement) {
     action: 'MAKE_API_CALL',
     endpoint: 'generateContent',
     payload: {
-      model: 'gemini-1.5-flash',
-      prompt: `Summarize the following transcript in a clear, concise manner with key points and insights:\n\n${transcriptText.substring(0, 15000)}`
+      model: 'gemini-2.0-flash',
+      prompt: `${summarize}${transcriptText}`
     }
   }, response => {
     console.log("Received summary response via ChromeBridge:", response);
