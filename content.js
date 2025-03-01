@@ -171,7 +171,7 @@
     }
 
 
-    // Function to inject the side panel into the YouTube page (remains unchanged)
+    // Function to inject the side panel into the YouTube page
     function injectSidePanel() {
         if (document.getElementById('extension-sidepanel-container')) {
             console.log('Side panel already exists');
@@ -206,43 +206,51 @@
                 // Set up a message bridge before adding the script
                 setupMessageBridge(panelContainer);
 
-                // Now add the script manually
-                const script = document.createElement('script');
-                script.src = chrome.runtime.getURL('sidepanel.js');
-                document.head.appendChild(script);
-
-                // Show panel with animation
-                setTimeout(() => {
-                    panelContainer.style.transform = 'translateX(0)';
-                }, 100);
-
-                // Setup communication with the main content script
-                script.onload = function() {
-                    // Define global functions that sidepanel.js can call (remains unchanged)
-                    window.updateApiKeyStatus = function(status) {
-                        const statusElement = panelContainer.querySelector('#api-key-status .status-dot');
-                        if (statusElement) {
-                            statusElement.classList.toggle('active', status === 'API Key: Valid');
-                            statusElement.title = status;
-                        }
-                    };
-
-                    window.updateVideoInfo = function(info) { // New function to update video info
-                        const titleElement = panelContainer.querySelector('#video-title');
-                        const channelElement = panelContainer.querySelector('#channel-name');
-                        if (titleElement) titleElement.textContent = info.title;
-                        if (channelElement) channelElement.textContent = info.channel;
-                    };
-
-                    window.updateTranscriptText = function(text) {
-                        const transcriptElement = panelContainer.querySelector('#transcript-content-textarea'); // Updated selector to textarea
-                        if (transcriptElement) transcriptElement.value = text; // Use .value for textarea
-                    };
-
-                    // Update panel with info
+                // First inject the prompts script
+                const promptsScript = document.createElement('script');
+                promptsScript.src = chrome.runtime.getURL('prompts.js');
+                document.head.appendChild(promptsScript);
+                
+                // Then inject the main script after a short delay
+                promptsScript.onload = function() {
+                    // Add the main script after prompts has loaded
+                    const script = document.createElement('script');
+                    script.src = chrome.runtime.getURL('sidepanel.js');
+                    document.head.appendChild(script);
+                    
+                    // Show panel with animation
                     setTimeout(() => {
-                        updateSidePanelInfo(panelContainer);
-                    }, 500);
+                        panelContainer.style.transform = 'translateX(0)';
+                    }, 100);
+                    
+                    // Setup communication with the main content script
+                    script.onload = function() {
+                        // Define global functions that sidepanel.js can call (remains unchanged)
+                        window.updateApiKeyStatus = function(status) {
+                            const statusElement = panelContainer.querySelector('#api-key-status .status-dot');
+                            if (statusElement) {
+                                statusElement.classList.toggle('active', status === 'API Key: Valid');
+                                statusElement.title = status;
+                            }
+                        };
+
+                        window.updateVideoInfo = function(info) { // New function to update video info
+                            const titleElement = panelContainer.querySelector('#video-title');
+                            const channelElement = panelContainer.querySelector('#channel-name');
+                            if (titleElement) titleElement.textContent = info.title;
+                            if (channelElement) channelElement.textContent = info.channel;
+                        };
+
+                        window.updateTranscriptText = function(text) {
+                            const transcriptElement = panelContainer.querySelector('#transcript-content-textarea'); // Updated selector to textarea
+                            if (transcriptElement) transcriptElement.value = text; // Use .value for textarea
+                        };
+
+                        // Update panel with info
+                        setTimeout(() => {
+                            updateSidePanelInfo(panelContainer);
+                        }, 500);
+                    };
                 };
             })
             .catch(error => {

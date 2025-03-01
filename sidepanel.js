@@ -1,4 +1,6 @@
-import { summarize } from "./prompts";
+// Remove the import statement
+// Instead, we'll access the summarize prompt from a global variable
+
 // Add a message bridge utility at the top of the file
 const ChromeBridge = {
     requestId: 0,
@@ -259,13 +261,23 @@ function requestSummary(transcriptText, buttonElement) {
   // Add more debug info to verify message format
   console.log("Sending message with action: MAKE_API_CALL via ChromeBridge");
   
+  // Get the summarize prompt from global variable or use default if not available
+  let summarizePrompt = '';
+  try {
+    summarizePrompt = window.YT_TOOLKIT_PROMPTS?.summarize || 
+      `Summarize the following transcript in a clear, concise manner with key points and insights:\n\n`;
+  } catch (e) {
+    console.warn("Could not access YT_TOOLKIT_PROMPTS, using default prompt", e);
+    summarizePrompt = `Summarize the following transcript in a clear, concise manner with key points and insights:\n\n`;
+  }
+  
   // Use ChromeBridge to send message to background script via content script
   ChromeBridge.sendMessage({
     action: 'MAKE_API_CALL',
     endpoint: 'generateContent',
     payload: {
       model: 'gemini-2.0-flash',
-      prompt: `${summarize}${transcriptText}`
+      prompt: `${summarizePrompt}${transcriptText.substring(0, 15000)}` // Limit to avoid token issues
     }
   }, response => {
     console.log("Received summary response via ChromeBridge:", response);

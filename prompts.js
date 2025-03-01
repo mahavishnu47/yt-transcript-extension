@@ -1,5 +1,11 @@
-const summarize = `
-# IDENTITY and PURPOSE
+/**
+ * This file contains predefined prompts used in the YT Transcript AI Toolkit
+ */
+
+// Export as window property for easier access from injected scripts
+window.YT_TOOLKIT_PROMPTS = {
+  // Prompt for summarizing transcripts
+  summarize: `# IDENTITY and PURPOSE
 
 You are an expert content summarizer. You take content in and output a Markdown formatted summary using the format below.
 
@@ -25,6 +31,15 @@ Take a deep breath and think step by step about how to best accomplish this goal
 # INPUT:
 
 INPUT:
-`
+`,
 
-export { summarize };
+  // Add other prompts as needed
+  analyze: `Analyze the key themes and arguments in this transcript, including:
+- Main points and supporting evidence
+- The speaker's position and reasoning
+- Any logical fallacies or strong arguments
+- Overall effectiveness of the presentation
+
+Transcript:
+`
+};

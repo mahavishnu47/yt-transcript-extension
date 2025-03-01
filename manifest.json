@@ -37,7 +37,7 @@
   },
   "web_accessible_resources": [
     {
-      "resources": ["sidepanel.html", "sidepanel.js"],
+      "resources": ["sidepanel.html", "sidepanel.js", "prompts.js"],
       "matches": ["https://*.youtube.com/*"]
     }
   ],
