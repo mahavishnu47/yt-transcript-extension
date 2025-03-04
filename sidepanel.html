@@ -9,28 +9,71 @@
             font-family: 'Roboto', Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background: #f8f8f8;
+            background: transparent;
             color: #333;
             font-size: 14px;
+            overflow: hidden; /* Prevent scrolling body */
         }
+        
         .yt-ai-toolkit-sidepanel {
             width: 300px;
+            height: 100vh; /* Use full viewport height */
+            max-height: 100vh; /* Ensure it never exceeds viewport height */
             background: #fff;
             box-sizing: border-box;
             padding: 15px;
             display: flex;
             flex-direction: column;
-            height: 100%;
+            position: fixed; /* Fix position */
+            top: 0;
+            right: 0;
+            bottom: 0;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+            border-radius: 0; /* Remove border radius for full coverage */
+            transition: height 0.3s ease, width 0.3s ease, opacity 0.3s ease;
+            resize: none; /* Disable resizing */
+            overflow: hidden; /* Prevent scrolling of outer container */
+            min-width: 250px;
+            min-height: 100vh;
+            max-width: 800px;
+            z-index: 9999; /* Ensure it stays on top */
+        }
+        
+        /* Panel states */
+        .yt-ai-toolkit-sidepanel.minimized {
+            height: 40px !important;
+            overflow: hidden;
+        }
+        
+        .yt-ai-toolkit-sidepanel.full-screen {
+            width: 100% !important;
+            height: 100vh !important;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 10000;
+            border-radius: 0;
+        }
+        
+        /* Hide all resize handles */
+        .resize-handle {
+            display: none;
         }
 
         .panel-header {
             display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: flex-start;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 10px;
             border-bottom: 1px solid #eee;
             padding-bottom: 10px;
+            cursor: default; /* Disable dragging by removing cursor: move */
+        }
+        
+        .title-area {
+            flex-grow: 1;
+            overflow: hidden;
         }
 
         .panel-header h3 {
@@ -38,6 +81,9 @@
             font-size: 16px;
             font-weight: bold;
             line-height: 1.2;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .panel-header .channel-name {
@@ -45,11 +91,14 @@
             color: #777;
             margin-top: 5px;
             line-height: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .panel-controls {
-            align-self: flex-end;
-            margin-top: -25px;
+            display: flex;
+            align-items: center;
         }
 
         .panel-controls button {
@@ -59,16 +108,38 @@
             cursor: pointer;
             color: #777;
             margin-left: 5px;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 3px;
+            transition: background-color 0.2s;
         }
 
         .panel-controls button:hover {
+            background-color: #f0f0f0;
             color: #333;
+        }
+        
+        .panel-btn.minimize:hover {
+            background-color: #e5f2fd;
+        }
+        
+        .panel-btn.maximize:hover {
+            background-color: #e9f7ef;
+        }
+        
+        .panel-btn.close:hover {
+            background-color: #ffebee;
         }
 
         .panel-content {
             flex-grow: 1;
             overflow-y: auto;
             padding-right: 5px;
+            padding-bottom: 15px; /* Add bottom padding */
+            height: calc(100% - 110px); /* Subtract header and footer height */
         }
 
         .panel-section {
@@ -89,25 +160,26 @@
             border-radius: 5px;
             margin-bottom: 10px;
             min-height: 100px;
+            position: relative;
         }
 
-        #transcript-content-textarea { /* Style for Textarea */
+        #transcript-content-textarea {
             width: 100%;
-            min-height: 200px;
-            max-height: 400px;
+            height: 200px; /* Default height */
+            max-height: 30vh; /* Limit max height proportionally */
+            min-height: 100px;
             padding: 8px;
-            border: none; /* No border for textarea, border is on container */
-            border-radius: 0; /* No border radius for textarea */
+            border: none;
+            border-radius: 0;
             font-family: 'Roboto', Arial, sans-serif;
             font-size: 13px;
             line-height: 1.5;
-            overflow-y: auto; /* Enable vertical scrolling */
-            resize: vertical; /* Allow vertical resize */
+            overflow-y: auto;
+            resize: vertical;
             box-sizing: border-box;
-            background-color: transparent; /* Make textarea background transparent */
-            outline: none; /* Remove default focus outline */
+            background-color: transparent;
+            outline: none;
         }
-
 
         #ai-result-container {
             background: #f0f0f0;
@@ -115,7 +187,10 @@
             padding: 10px;
             border-radius: 5px;
             margin-bottom: 10px;
-            min-height: 150px;
+            min-height: 180px;
+            max-height: calc(100vh - 400px); /* Adjust to fit remaining space */
+            position: relative;
+            overflow: hidden;
         }
 
         .section-actions button, .panel-footer button {
@@ -141,7 +216,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-top: 15px;
+            margin-top: auto; /* Push to bottom */
+            padding-bottom: 5px;
         }
 
         .status-indicator {
@@ -157,11 +233,11 @@
             height: 8px;
             border-radius: 50%;
             margin-right: 5px;
-            background-color: #ccc; /* Default gray */
+            background-color: #ccc;
         }
 
         .status-dot.active {
-            background-color: #4CAF50; /* Green for active/valid */
+            background-color: #4CAF50;
         }
         .copy-success {
             background-color: #4CAF50 !important;
@@ -195,7 +271,6 @@
             color: #777;
         }
 
-
         .spinner {
             display: inline-block;
             margin-left: 5px;
@@ -212,7 +287,6 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Ensure loading indicator can be properly hidden */
         #loading-transcript {
             display: flex;
             align-items: center;
@@ -232,12 +306,11 @@
             display: none !important;
         }
 
-        /* Enhanced markdown styling */
         .ai-result-content {
             font-family: 'Roboto', Arial, sans-serif;
             line-height: 1.5;
             color: #333;
-            max-height: 400px;
+            max-height: calc(100vh - 450px); /* Adjust based on container */
             overflow-y: auto;
         }
 
@@ -286,18 +359,97 @@
             border-radius: 3px;
             font-family: monospace;
         }
+        
+        /* Position indicator for dragging */
+        .position-indicator {
+            position: fixed;
+            padding: 5px 10px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            border-radius: 3px;
+            font-size: 12px;
+            pointer-events: none;
+            z-index: 1000;
+            display: none;
+        }
+        
+        /* Override styles when minimized */
+        .yt-ai-toolkit-sidepanel.minimized .panel-content,
+        .yt-ai-toolkit-sidepanel.minimized .panel-footer,
+        .yt-ai-toolkit-sidepanel.minimized .channel-name {
+            display: none;
+        }
+        
+        .yt-ai-toolkit-sidepanel.minimized .panel-header {
+            margin-bottom: 0;
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        
+        /* Snapping zones indicator */
+        .snap-zone {
+            position: fixed;
+            background: rgba(102, 187, 255, 0.2);
+            border: 2px dashed rgba(102, 187, 255, 0.5);
+            pointer-events: none;
+            z-index: 999;
+            display: none;
+        }
+        
+        .snap-zone.left {
+            top: 0;
+            left: 0;
+            width: 100px;
+            height: 100%;
+        }
+        
+        .snap-zone.right {
+            top: 0;
+            right: 0;
+            width: 100px;
+            height: 100%;
+        }
+        
+        .snap-zone.top {
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100px;
+        }
+        
+        .snap-zone.bottom {
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100px;
+        }
+        
+        .snap-zone.active {
+            background: rgba(102, 187, 255, 0.4);
+        }
     </style>
 </head>
 <body>
 <div id="yt-ai-toolkit-panel" class="yt-ai-toolkit-sidepanel">
+    <!-- Resize handles -->
+    <div class="resize-handle top"></div>
+    <div class="resize-handle right"></div>
+    <div class="resize-handle bottom"></div>
+    <div class="resize-handle left"></div>
+    <div class="resize-handle corner-tl"></div>
+    <div class="resize-handle corner-tr"></div>
+    <div class="resize-handle corner-bl"></div>
+    <div class="resize-handle corner-br"></div>
+    
     <div class="panel-header">
-        <div>
+        <div class="title-area">
             <h3 id="video-title">Loading Video Title...</h3>
             <div id="channel-name" class="channel-name">Loading Channel...</div>
         </div>
         <div class="panel-controls">
-            <button id="panel-minimize" class="panel-btn" title="Minimize">−</button>
-            <button id="panel-close" class="panel-btn" title="Close">×</button>
+            <button id="panel-minimize" class="panel-btn minimize" title="Minimize">−</button>
+            <button id="panel-maximize" class="panel-btn maximize" title="Maximize">□</button>
+            <button id="panel-close" class="panel-btn close" title="Close" style="display:none;">×</button>
         </div>
     </div>
 
@@ -316,7 +468,6 @@
                 <button id="summarize-transcript" class="action-btn">Summarize</button>
             </div>
         </div>
-
 
         <div class="panel-section" id="resultSection">
             <h4>AI Summary</h4>
@@ -344,6 +495,16 @@
         <button id="panel-settings" class="panel-btn" title="Settings">⚙️</button>
     </div>
 </div>
+
+<!-- Dragging position indicator -->
+<div id="position-indicator" class="position-indicator">0, 0</div>
+
+<!-- Snap zones indicators -->
+<div class="snap-zone left"></div>
+<div class="snap-zone right"></div>
+<div class="snap-zone top"></div>
+<div class="snap-zone bottom"></div>
+
 <script src="sidepanel.js"></script>
 </body>
 </html>

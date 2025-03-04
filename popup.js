@@ -1,4 +1,48 @@
 document.addEventListener('DOMContentLoaded', function() {
+  // Check if API key already exists - if so, inject sidepanel and close popup
+  chrome.storage.sync.get('apiKey', function(data) {
+    if (data.apiKey) {
+      // API key exists, tell content script to show sidepanel and close popup
+      chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+        if (!tabs || !tabs[0] || !tabs[0].url) {
+          console.error("No active tab found");
+          return;
+        }
+        
+        // First inject content script to make sure it's loaded
+        chrome.scripting.executeScript({
+          target: { tabId: tabs[0].id },
+          files: ['content.js']
+        }).then(() => {
+          // Now that content script is guaranteed to be loaded, send the message
+          chrome.tabs.sendMessage(
+            tabs[0].id, 
+            {action: 'SHOW_SIDEPANEL', validated: true},
+            function(response) {
+              if (chrome.runtime.lastError) {
+                console.warn("Error showing sidepanel:", chrome.runtime.lastError.message);
+                // Keep popup open if there was an error
+              } else {
+                window.close(); // Close popup on success
+              }
+            }
+          );
+        }).catch(err => {
+          console.error("Failed to inject content script:", err);
+          // Show error in popup
+          const status = document.getElementById('api-key-status');
+          if (status) {
+            status.textContent = "Error: Could not load content script. Please make sure you're on YouTube.";
+            status.className = 'status error';
+          }
+        });
+      });
+    } else {
+      // No API key exists, show the form
+      document.getElementById('api-key-form').style.display = 'block';
+    }
+  });
+
   console.log('Popup script loaded');
   
   // Elements
@@ -129,30 +173,42 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
   
-  // Helper function to send message to active YouTube tab
+  // Helper function to send message to active YouTube tab with improved error handling
   function sendMessageToActiveYouTubeTab(message) {
     chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
-      if (!tabs[0] || !tabs[0].url || !tabs[0].url.includes("youtube.com")) {
-        console.warn("No active YouTube tab found; skipping message:", message.action);
+      if (!tabs || !tabs.length || !tabs[0].url) {
+        console.warn("No active tab found");
+        const status = document.getElementById('api-key-status');
+        if (status) {
+          status.textContent = "Error: No active tab found.";
+          status.className = 'status error';
+        }
         return;
       }
       
-      console.log("Sending message to tab:", tabs[0].id, message.action);
+      // Check if current tab is YouTube
+      if (!tabs[0].url.includes("youtube.com")) {
+        console.warn("Not on YouTube; this extension only works on YouTube.com");
+        const status = document.getElementById('api-key-status');
+        if (status) {
+          status.textContent = "Error: This extension only works on YouTube.com";
+          status.className = 'status error';
+        }
+        return;
+      }
       
-      // Try to inject the content script if it's not already there
+      // Inject the content script before sending messages to ensure it's loaded
       chrome.scripting.executeScript({
         target: { tabId: tabs[0].id },
         files: ['content.js']
       }).then(() => {
-        // Now send the message
+        // Now send the message to the injected content script
         chrome.tabs.sendMessage(tabs[0].id, message, function(response) {
           if (chrome.runtime.lastError) {
-            console.warn("Message send error (likely no receiving end):", chrome.runtime.lastError.message);
-            
-            // For debugging, show the error to the user
+            console.warn("Message send error:", chrome.runtime.lastError.message);
             const status = document.getElementById('api-key-status');
             if (status) {
-              status.textContent = "Error: Content script not ready. Please reload the YouTube page.";
+              status.textContent = "Error connecting to YouTube page. Try refreshing.";
               status.className = 'status error';
             }
           } else {
@@ -161,6 +217,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
       }).catch(err => {
         console.error("Failed to inject content script:", err);
+        const status = document.getElementById('api-key-status');
+        if (status) {
+          status.textContent = "Error: Could not load content script.";
+          status.className = 'status error';
+        }
       });
     });
   }

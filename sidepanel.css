@@ -4,8 +4,8 @@
   position: fixed;
   top: 56px; /* YouTube's header height */
   right: 0;
-  width: 360px;
-  height: calc(100vh - 56px);
+  width: 300px; /* Fixed width */
+  height: 100vh; /* Full height */
   background-color: #fff;
   box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
   z-index: 9999;
@@ -14,6 +14,7 @@
   transition: transform 0.3s ease;
   font-family: 'Roboto', Arial, sans-serif;
   border-left: 1px solid #e0e0e0;
+  overflow: hidden; /* Prevent user resizing */
 }
 
 .yt-ai-toolkit-sidepanel.minimized {

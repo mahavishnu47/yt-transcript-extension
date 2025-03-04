@@ -131,6 +131,19 @@
         }
     }
 
+    // Save transcript chat to storage when panel is removed
+    function saveTranscriptChat() {
+        const panel = document.getElementById('extension-sidepanel-container');
+        if (!panel) return;
+        const textarea = panel.querySelector('#transcript-content-textarea');
+        if (textarea) {
+            const currentChat = textarea.value;
+            chrome.storage.local.set({ lastTranscript: currentChat }, () => {
+                console.log('Saved last transcript chat.');
+            });
+        }
+    }
+
     // Helper function to attempt closing the transcript panel, primarily by toggling the transcript button (unchanged)
     async function attemptCloseTranscriptPanel(transcriptButton, forceCloseFallback = false) {
         let attempts = 3; // Number of retry attempts
@@ -197,7 +210,7 @@
         panelContainer.style.overflow = 'auto';
         document.body.appendChild(panelContainer);
 
-        // Fetch and inject the HTML from sidepanel.html (remains unchanged)
+        // Fetch and inject the HTML from sidepanel.html 
         fetch(chrome.runtime.getURL('sidepanel.html'))
             .then(response => response.text())
             .then(html => {
@@ -206,52 +219,81 @@
                 // Set up a message bridge before adding the script
                 setupMessageBridge(panelContainer);
 
-                // First inject the prompts script
-                const promptsScript = document.createElement('script');
-                promptsScript.src = chrome.runtime.getURL('prompts.js');
-                document.head.appendChild(promptsScript);
-                
-                // Then inject the main script after a short delay
-                promptsScript.onload = function() {
-                    // Add the main script after prompts has loaded
-                    const script = document.createElement('script');
-                    script.src = chrome.runtime.getURL('sidepanel.js');
-                    document.head.appendChild(script);
+                // Before loading the main script, load any saved transcript
+                chrome.storage.local.get('lastTranscript', function(result) {
+                    // Flag for restored transcript to ensure loading spinner doesn't show
+                    let restoredFromStorage = false;
                     
-                    // Show panel with animation
-                    setTimeout(() => {
-                        panelContainer.style.transform = 'translateX(0)';
-                    }, 100);
+                    if (result.lastTranscript && result.lastTranscript.trim() !== '') {
+                        // Set a data attribute to mark this panel as having a restored transcript
+                        panelContainer.setAttribute('data-last-transcript', result.lastTranscript);
+                        panelContainer.setAttribute('data-transcript-loaded', 'true');
+                        restoredFromStorage = true;
+                        console.log('Restoring saved transcript chat.');
+                    }
+
+                    // First inject the prompts script
+                    const promptsScript = document.createElement('script');
+                    promptsScript.src = chrome.runtime.getURL('prompts.js');
+                    document.head.appendChild(promptsScript);
                     
-                    // Setup communication with the main content script
-                    script.onload = function() {
-                        // Define global functions that sidepanel.js can call (remains unchanged)
-                        window.updateApiKeyStatus = function(status) {
-                            const statusElement = panelContainer.querySelector('#api-key-status .status-dot');
-                            if (statusElement) {
-                                statusElement.classList.toggle('active', status === 'API Key: Valid');
-                                statusElement.title = status;
-                            }
-                        };
-
-                        window.updateVideoInfo = function(info) { // New function to update video info
-                            const titleElement = panelContainer.querySelector('#video-title');
-                            const channelElement = panelContainer.querySelector('#channel-name');
-                            if (titleElement) titleElement.textContent = info.title;
-                            if (channelElement) channelElement.textContent = info.channel;
-                        };
-
-                        window.updateTranscriptText = function(text) {
-                            const transcriptElement = panelContainer.querySelector('#transcript-content-textarea'); // Updated selector to textarea
-                            if (transcriptElement) transcriptElement.value = text; // Use .value for textarea
-                        };
-
-                        // Update panel with info
+                    // Then inject the main script after a short delay
+                    promptsScript.onload = function() {
+                        // Add the main script after prompts has loaded
+                        const script = document.createElement('script');
+                        script.src = chrome.runtime.getURL('sidepanel.js');
+                        document.head.appendChild(script);
+                        
+                        // Show panel with animation
                         setTimeout(() => {
-                            updateSidePanelInfo(panelContainer);
-                        }, 500);
+                            panelContainer.style.transform = 'translateX(0)';
+                        }, 100);
+
+                        // Setup communication with the main content script
+                        script.onload = function() {
+                            // Define global functions that sidepanel.js can call
+                            window.updateApiKeyStatus = function(status) {
+                                const statusElement = panelContainer.querySelector('#api-key-status .status-dot');
+                                if (statusElement) {
+                                    statusElement.classList.toggle('active', status === 'API Key: Valid');
+                                    statusElement.title = status;
+                                }
+                            };
+
+                            window.updateVideoInfo = function(info) { // New function to update video info
+                                const titleElement = panelContainer.querySelector('#video-title');
+                                const channelElement = panelContainer.querySelector('#channel-name');
+                                if (titleElement) titleElement.textContent = info.title;
+                                if (channelElement) channelElement.textContent = info.channel;
+                            };
+
+                            window.updateTranscriptText = function(text) {
+                                const transcriptElement = panelContainer.querySelector('#transcript-content-textarea');
+                                if (transcriptElement) transcriptElement.value = text;
+                                
+                                // Hide loading spinner when transcript is updated
+                                const loadingElement = panelContainer.querySelector('#loading-transcript');
+                                if (loadingElement) {
+                                    loadingElement.style.display = 'none';
+                                }
+                            };
+                            
+                            // If we have a restored transcript, immediately hide the loading spinner
+                            if (restoredFromStorage) {
+                                const loadingElement = panelContainer.querySelector('#loading-transcript');
+                                if (loadingElement) {
+                                    loadingElement.style.display = 'none';
+                                    console.log("Hiding loading spinner for restored transcript");
+                                }
+                            }
+
+                            // Update panel with info
+                            setTimeout(() => {
+                                updateSidePanelInfo(panelContainer);
+                            }, 500);
+                        };
                     };
-                };
+                });
             })
             .catch(error => {
                 console.error('Error loading side panel HTML:', error);
@@ -311,14 +353,25 @@
                 let fullText = transcriptData.map(segment => segment.text).join(' ');
                 window.updateTranscriptText?.(fullText);
             } else {
-                getTranscript(currentVideoId).then(transcript => {
-                    if (transcript && transcript.length > 0) {
-                        let fullText = transcript.map(segment => segment.text).join(' ');
-                        window.updateTranscriptText?.(fullText);
-                    } else {
-                        window.updateTranscriptText?.("Couldn't get the transcript, sorry"); // Update panel to show sorry message
+                const panel = document.getElementById('extension-sidepanel-container');
+                if (panel) {
+                    // If the panel already has transcript content, skip reloading
+                    let textarea = panel.querySelector('#transcript-content-textarea');
+                    if (textarea && textarea.value.trim() !== "") {
+                        console.log("Transcript already loaded; skipping re-fetch.");
+                        panel.setAttribute('data-transcript-loaded', 'true');
+                    } else if (!panel.getAttribute('data-transcript-loaded')) {
+                        getTranscript(currentVideoId).then(transcript => {
+                            if (transcript && transcript.length > 0) {
+                                let fullText = transcript.map(segment => segment.text).join(' ');
+                                window.updateTranscriptText?.(fullText);
+                                panel.setAttribute('data-transcript-loaded', 'true');
+                            } else {
+                                window.updateTranscriptText?.("Couldn't get the transcript, sorry");
+                            }
+                        });
                     }
-                });
+                }
             }
         } catch (error) {
             console.error('Error updating side panel info:', error);
@@ -408,7 +461,13 @@
         switch (message.action) {
             case 'NEW_VIDEO_LOADED':
                 currentVideoId = message.videoId;
-                console.log('New video detected:', currentVideoId);
+                transcriptData = null;
+                {
+                    const panel = document.getElementById('extension-sidepanel-container');
+                    if (panel) {
+                        panel.removeAttribute('data-transcript-loaded');
+                    }
+                }
                 setTimeout(() => {
                     getTranscript(currentVideoId);
                 }, 2000);
@@ -502,10 +561,16 @@
             setTimeout(() => {
                 getTranscript(currentVideoId);
             }, 2000);
-            // Call side panel injection after a delay to allow DOM load
-            setTimeout(() => {
-                injectSidePanel();
-            }, 2500);
+            // AUTO-OPEN: If apiKey exists, inject sidepanel immediately
+            chrome.storage.sync.get('apiKey', function(data) {
+                if (data.apiKey) {
+                    injectSidePanel();
+                } else {
+                    // Optionally, show API key popup here if no key is stored
+                    console.log('No API key found; waiting for user input.');
+                    chrome.runtime.sendMessage({ action: 'SHOW_API_KEY_POPUP' });
+                }
+            });
         }
         setupNavigationListener();
         
