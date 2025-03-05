@@ -37,6 +37,9 @@
             min-height: 100vh;
             max-width: 800px;
             z-index: 9999; /* Ensure it stays on top */
+            display: flex;
+            flex-direction: column;
+            padding-bottom: 60px; /* Height of nav bar */
         }
         
         /* Panel states */
@@ -135,11 +138,35 @@
         }
 
         .panel-content {
-            flex-grow: 1;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding-bottom: 60px; /* Add padding to account for fixed navbar */
             overflow-y: auto;
-            padding-right: 5px;
-            padding-bottom: 15px; /* Add bottom padding */
-            height: calc(100% - 110px); /* Subtract header and footer height */
+            padding-bottom: 60px; /* Space for nav bar */
+            /* Custom scrollbar styling */
+            scrollbar-width: thin;
+            scrollbar-color: #c1c1c1 #f1f1f1;
+        }
+
+        .panel-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .panel-content::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .panel-content::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+            border: 2px solid transparent;
+            background-clip: padding-box;
+        }
+
+        .panel-content::-webkit-scrollbar-thumb:hover {
+            background: #a0a0a0;
         }
 
         .panel-section {
@@ -210,14 +237,7 @@
         }
 
         .panel-footer {
-            border-top: 1px solid #eee;
-            padding-top: 10px;
-            text-align: right;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: auto; /* Push to bottom */
-            padding-bottom: 5px;
+            display: none; /* Hide the global footer completely */
         }
 
         .status-indicator {
@@ -427,6 +447,419 @@
         .snap-zone.active {
             background: rgba(102, 187, 255, 0.4);
         }
+        
+        /* Navigation Bar Styles */
+        .nav-tabs {
+            display: flex;
+            background-color: #f5f5f5;
+            border-top: 1px solid #ddd;
+            margin-top: auto;
+            position: relative;
+            z-index: 10;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #ffffff;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            padding: 8px 0;
+            margin: 0;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-around;
+            z-index: 1000;
+        }
+        
+        .nav-tab {
+            flex: 1;
+            padding: 12px 5px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 13px;
+            color: #606060;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .nav-tab.active {
+            color: #065fd4;
+            border-bottom-color: #065fd4;
+            font-weight: 500;
+        }
+        
+        .nav-tab:hover:not(.active) {
+            background-color: #f0f0f0;
+        }
+        
+        .nav-tab-icon {
+            display: block;
+            font-size: 18px;
+            margin-bottom: 3px;
+        }
+        
+        /* Panel view section styles */
+        .panel-view {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+            overflow: hidden;
+            height: auto;
+            min-height: min-content;
+            overflow: visible;
+        }
+        
+        .panel-view.active {
+            display: flex;
+        }
+        
+        /* Chat specific styles */
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+            height: calc(100% - 60px); /* Adjusted to account for input area */
+            height: calc(100vh - 180px); /* Adjust for nav bar + headers */
+        }
+        
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto; /* Enable vertical scrolling */
+            padding: 10px;
+            background-color: #f9f9f9;
+            scroll-behavior: smooth; /* Add smooth scrolling */
+            -webkit-overflow-scrolling: touch; /* Better scrolling on iOS */
+            display: flex;
+            flex-direction: column;
+            max-height: calc(100vh - 250px); /* Limit height to ensure room for input */
+        }
+        
+        .chat-message {
+            margin-bottom: 10px;
+            max-width: 80%;
+            padding: 10px;
+            border-radius: 10px;
+            line-height: 1.4;
+            font-size: 14px;
+            position: relative;
+            word-wrap: break-word; /* Prevent text overflow */
+            overflow-wrap: break-word;
+        }
+        
+        .chat-message.user {
+            background-color: #e1f5fe;
+            align-self: flex-end;
+            margin-left: auto;
+            border-bottom-right-radius: 2px;
+        }
+        
+        .chat-message.assistant {
+            background-color: #f1f1f1;
+            align-self: flex-start;
+            border-bottom-left-radius: 2px;
+        }
+        
+        .chat-message .timestamp {
+            font-size: 10px;
+            color: #888;
+            text-align: right;
+            margin-top: 5px;
+        }
+        
+        .chat-input-container {
+            display: flex;
+            padding: 10px;
+            background-color: #fff;
+            border-top: 1px solid #ddd;
+        }
+        
+        .chat-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            margin-right: 10px;
+            outline: none;
+            resize: none;
+            font-family: 'Roboto', Arial, sans-serif;
+            height: 40px;
+            max-height: 120px;
+            overflow-y: auto;
+        }
+        
+        .chat-input:focus {
+            border-color: #065fd4;
+        }
+        
+        .chat-send-btn {
+            background-color: #065fd4;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s;
+        }
+        
+        .chat-send-btn:hover {
+            background-color: #0056b3;
+        }
+        
+        .chat-send-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .download-btn {
+            background-color: #065fd4;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 6px 10px;
+            font-size: 13px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: background-color 0.3s;
+        }
+        
+        .download-btn:hover {
+            background-color: #0056b3;
+        }
+        
+        .download-icon {
+            display: inline-block;
+            margin-right: 5px;
+            font-size: 16px;
+        }
+        
+        .footer-content {
+            display: none;
+            padding: 8px 15px;
+            border-top: 1px solid #eee;
+        }
+        
+        .view-active .footer-content {
+            display: flex;
+            align-items: center;
+        }
+        
+        .chat-messages::-webkit-scrollbar {
+            width: 8px; /* Slightly wider for better usability */
+        }
+        
+        .chat-messages::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+            border: 2px solid transparent;
+            background-clip: padding-box;
+        }
+        
+        .chat-messages::-webkit-scrollbar-thumb:hover {
+            background: #a0a0a0;
+        }
+        
+        .panel-view {
+            overflow-y: auto;
+            height: 100%;
+            flex: 1 1 auto;
+            transition: opacity 0.3s ease;
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .panel-view.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        /* Fixed Navigation Bar Styles */
+        .nav-tabs {
+            display: flex;
+            background-color: #f5f5f5;
+            border-top: 1px solid #ddd;
+            position: sticky;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            width: 100%;
+        }
+        
+        /* Adjust tab styling to include settings tab */
+        .nav-tab, .nav-tab-settings {
+            flex: 1;
+            padding: 12px 5px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 13px;
+            color: #606060;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .nav-tab.active, .nav-tab-settings.active {
+            color: #065fd4;
+            border-bottom-color: #065fd4;
+            font-weight: 500;
+        }
+        
+        .nav-tab:hover:not(.active), .nav-tab-settings:hover:not(.active) {
+            background-color: #f0f0f0;
+        }
+        
+        /* Make sure content doesn't get hidden behind the navbar */
+        .panel-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding-bottom: 60px; /* Add padding to account for fixed navbar */
+            padding-bottom: 80px;
+        }
+        
+        /* Chat container adjustments */
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+            /* Adjust height to account for footer content and nav bar */
+            height: calc(100% - 110px);
+            max-height: calc(100vh - 250px);
+        }
+        
+        /* Add these new styles at the end of your existing style block */
+        .nav-tabs {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: #ffffff;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+        }
+
+        .nav-tab {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px 16px;
+            color: #606060;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+        }
+
+        .nav-tab.active {
+            color: #065fd4;
+            border-bottom-color: #065fd4;
+        }
+
+        .nav-tab-icon {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        /* Button feedback animations */
+        .section-actions button {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .section-actions button:active {
+            transform: scale(0.95);
+        }
+
+        .section-actions button::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255,255,255,0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+
+        .section-actions button:focus:not(:active)::after {
+            animation: ripple 1s ease-out;
+        }
+
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 1;
+            }
+            20% {
+                transform: scale(25, 25);
+                opacity: 0.8;
+            }
+            100% {
+                opacity: 0;
+                transform: scale(40, 40);
+            }
+        }
+
+        /* Success feedback animation */
+        .button-success {
+            animation: successPulse 1s ease-in-out;
+        }
+
+        @keyframes successPulse {
+            0% { background-color: #065fd4; }
+            50% { background-color: #4CAF50; }
+            100% { background-color: #065fd4; }
+        }
+
+        /* Panel content adjustments for fixed navigation */
+        .panel-content {
+            padding-bottom: 80px;
+        }
+
+        /* Smooth transitions for panel switching */
+        .panel-view {
+            transition: opacity 0.3s ease;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .panel-view.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Loading spinner improvements */
+        .spinner {
+            border: 3px solid rgba(0,0,0,0.1);
+            border-top-color: #065fd4;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -454,45 +887,90 @@
     </div>
 
     <div class="panel-content">
-        <div class="panel-section" id="transcriptSection">
-            <h4>Transcript</h4>
-            <div id="transcript-container" class="transcript-container">
-                <div id="loading-transcript" class="loading-indicator">
-                    Loading transcript...
-                    <span class="spinner"></span>
+        <!-- Transcript Page: Contains transcript text area and summary container stacked vertically -->
+        <div id="transcript-page" class="panel-view active">
+            <div class="panel-section" id="transcriptSection">
+                <h4>Transcript</h4>
+                <div id="transcript-container">
+                    <div id="loading-transcript" class="loading-indicator">Loading transcript... <span class="spinner"></span></div>
+                    <textarea id="transcript-content-textarea" placeholder="Transcript will appear here..." readonly></textarea>
                 </div>
-                <textarea id="transcript-content-textarea" placeholder="Transcript will appear here..." readonly></textarea>
+                <!-- New summarize button added here -->
+                <div class="section-actions">
+                    <button id="summarize-transcript">Summarize Transcript</button>
+                    <button id="copy-transcript">Copy Transcript</button>
+                </div>
             </div>
-            <div class="section-actions">
-                <button id="copy-transcript" class="action-btn">Copy</button>
-                <button id="summarize-transcript" class="action-btn">Summarize</button>
+            <div class="panel-section" id="summarySection">
+                <h4>AI Summary</h4>
+                <div id="ai-result-container">
+                    <div id="ai-result-placeholder">Click 'Summarize' to generate an AI summary of the transcript</div>
+                    <div id="ai-result-content" class="ai-result-content"></div>
+                    <div id="ai-loading" style="display:none;"> <span class="spinner"></span> Generating summary...</div>
+                </div>
+                <div class="section-actions">
+                    <button id="copy-ai-result">Copy Summary</button>
+                    <button id="regenerate-ai-result">Regenerate</button>
+                </div>
             </div>
         </div>
 
-        <div class="panel-section" id="resultSection">
-            <h4>AI Summary</h4>
-            <div id="ai-result-container" class="ai-result-container">
-                <div id="ai-result-placeholder" class="placeholder-text">
-                    Click 'Summarize' to generate an AI summary of the transcript
+        <!-- Chat Page: Shows chat messages and input area -->
+        <div id="chat-page" class="panel-view">
+            <div class="chat-container">
+                <div id="chat-messages" class="chat-messages">
+                    <div class="chat-message assistant">
+                        <div class="message-content">Hello! I'm your AI assistant. Ask me anything about the video transcript.</div>
+                        <div class="timestamp">Just now</div>
+                    </div>
                 </div>
-                <div id="ai-result-content" class="ai-result-content"></div>
-                <div id="ai-loading">
-                    <span class="spinner"></span>
-                    <div>Generating AI summary...</div>
+                <div class="chat-input-container">
+                    <textarea id="chat-input" class="chat-input" placeholder="Your message..."></textarea>
+                    <button id="chat-send-btn" class="chat-send-btn">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M2.01 21L23 12L2.01 3L2 10L17 12L2 14L2.01 21Z" fill="white"/>
+                        </svg>
+                    </button>
                 </div>
             </div>
-            <div class="section-actions">
-                <button id="copy-ai-result" class="action-btn">Copy Summary</button>
-                <button id="regenerate-ai-result" class="action-btn">Regenerate</button>
+            <div class="footer-content">
+                <button id="download-chat" class="download-btn" title="Download Chat History">
+                    <span class="download-icon">⬇️</span> Save Chat
+                </button>
+            </div>
+        </div>
+
+        <!-- Settings Page: Contains API key form -->
+        <div id="settings-page" class="panel-view">
+            <div class="panel-section">
+                <h4>Settings</h4>
+                <div class="settings-form">
+                    <div class="form-group">
+                        <label for="settings-api-key">API Key</label>
+                        <input type="text" id="settings-api-key" placeholder="Enter your API key">
+                    </div>
+                    <div class="settings-actions">
+                        <button id="save-settings-btn">Save Settings</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="panel-footer">
-        <div class="status-indicator" id="api-key-status">
-            <span class="status-dot"></span>API Key Status: <span id="api-status-text">Valid</span>
+    <!-- Bottom Navigation Bar (ensure there is only one such block) -->
+    <div class="nav-tabs" style="position: relative; z-index: 2;">
+        <div id="nav-transcript" class="nav-tab active" data-view="transcript-page">
+            <span class="nav-tab-icon">📝</span>
+            Transcript
         </div>
-        <button id="panel-settings" class="panel-btn" title="Settings">⚙️</button>
+        <div id="nav-chat" class="nav-tab" data-view="chat-page">
+            <span class="nav-tab-icon">💬</span>
+            Chat
+        </div>
+        <div id="nav-settings" class="nav-tab" data-view="settings-page">
+            <span class="nav-tab-icon">⚙️</span>
+            Settings
+        </div>
     </div>
 </div>
 
