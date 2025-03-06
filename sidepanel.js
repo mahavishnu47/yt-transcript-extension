@@ -605,30 +605,32 @@
         const chatMessages = document.getElementById('chat-messages');
         if (!chatMessages) return;
         
-        // Get video title from the sidepanel element and use it as filename
+        // Retrieve video title and format it as a safe string.
         const videoTitle = document.getElementById('video-title')?.textContent?.trim() || 'YouTube-Chat';
-        // Sanitize the title for filename use
-        const safeTitleForFilename = videoTitle.replace(/[^a-z0-9]/gi, '-').replace(/-+/g, '-');
+        let sanitizedTitle = videoTitle.replace(/[^a-z0-9]/gi, '-').replace(/-+/g, '-');
         
-        // Create text content from chat messages
-        let textContent = `Chat History for: ${videoTitle}\n`;
-        textContent += `Date: ${new Date().toLocaleDateString()}\n\n`;
+        // Get current date-time and format (using ISO string without colons).
+        const now = new Date();
+        const timestamp = now.toISOString().replace(/:/g, '-').split('.')[0];
+        const filename = `${sanitizedTitle}-${timestamp}.txt`;
         
-        // Append each message with sender and timestamp
+        // Build the chat history content.
+        let textContent = `Chat History for: ${videoTitle}\nDownloaded at: ${now.toLocaleString()}\n\n`;
         const messages = chatMessages.querySelectorAll('.chat-message');
         messages.forEach(message => {
             const sender = message.classList.contains('user') ? 'You' : 'Assistant';
-            const messageText = message.querySelector('.message-content').textContent.trim();
-            const timestamp = message.querySelector('.timestamp').textContent.trim();
-            textContent += `[${timestamp}] ${sender}: ${messageText}\n\n`;
+            const messageText = message.querySelector('.message-content')?.textContent.trim() || '';
+            const messageTime = message.querySelector('.timestamp')?.textContent.trim() || '';
+            textContent += `[${messageTime}] ${sender}: ${messageText}\n\n`;
         });
         
-        // Create a blob and download link with the safe video title as filename
+        // Create and trigger a download with the custom filename.
         const blob = new Blob([textContent], { type: 'text/plain' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
+        a.style.display = 'none';
         a.href = url;
-        a.download = `${safeTitleForFilename}.txt`;
+        a.download = filename;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -761,8 +763,10 @@
         const footerLeft = document.querySelector('.panel-footer .actions-left');
         
         // Clear current footer content
-        while (footerLeft.firstChild) {
-            footerLeft.removeChild(footerLeft.firstChild);
+        if (footerLeft) {
+            while (footerLeft.firstChild) {
+                footerLeft.removeChild(footerLeft.firstChild);
+            }
         }
         
         // Only show download chat button if we're in the chat view - DISABLED
@@ -1034,4 +1038,148 @@
         setupChatInterface();
         forceScrollChatToBottom();
     }, 500);
+    
+    // Ensure the download chat button is properly set up
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set up download chat button with robust error handling
+        const setupDownloadButton = () => {
+            try {
+                const downloadChatBtn = document.getElementById('download-chat');
+                if (downloadChatBtn && !downloadChatBtn._hasClickHandler) {
+                    console.log("Setting up download chat button");
+                    downloadChatBtn._hasClickHandler = true;
+                    downloadChatBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        console.log("Download button clicked");
+                        downloadChatHistory();
+                    });
+                }
+            } catch (e) {
+                console.error("Error setting up download button:", e);
+            }
+        };
+        
+        // Call setup on load
+        setupDownloadButton();
+        
+        // Also set it up after a delay to ensure everything is loaded
+        setTimeout(setupDownloadButton, 1000);
+    });
+
+    // Add this function to fix the download chat functionality 
+    function fixDownloadButton() {
+        console.log("Setting up download chat button");
+        const downloadChatBtn = document.getElementById('download-chat');
+        
+        if (downloadChatBtn) {
+            // Remove any existing event listeners by cloning and replacing
+            const newBtn = downloadChatBtn.cloneNode(true);
+            if (downloadChatBtn.parentNode) {
+                downloadChatBtn.parentNode.replaceChild(newBtn, downloadChatBtn);
+            }
+            
+            // Add new event listener with explicit error handling
+            newBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log("Download button clicked, executing downloadChatHistory");
+                downloadChatHistory();
+            });
+            
+            console.log("Download button event listener added successfully");
+        } else {
+            console.error("Download button not found in DOM");
+        }
+    }
+
+    // Enhanced downloadChatHistory function with better file naming
+    function downloadChatHistory() {
+        try {
+            const chatMessages = document.getElementById('chat-messages');
+            if (!chatMessages) {
+                console.error("Chat messages container not found");
+                alert("Could not find chat messages to download");
+                return;
+            }
+            
+            // Get video title for filename
+            const videoTitleElement = document.getElementById('video-title');
+            const videoTitle = videoTitleElement ? videoTitleElement.textContent.trim() : 'YouTube-Chat';
+            console.log("Using video title:", videoTitle);
+            
+            // Create safe filename: remove invalid chars and replace with hyphens
+            const safeTitle = videoTitle.replace(/[/\\?%*:|"<>]/g, '-').replace(/\s+/g, '-');
+            
+            // Add timestamp to filename
+            const now = new Date();
+            const timestamp = now.toISOString().replace(/:/g, '-').split('.')[0]; // Format: YYYY-MM-DDTHH-MM-SS
+            const filename = `${safeTitle}-${timestamp}.txt`;
+            console.log("Generated filename:", filename);
+            
+            // Build chat content
+            let content = `Chat History: ${videoTitle}\n`;
+            content += `Downloaded: ${now.toLocaleString()}\n\n`;
+            
+            // Extract all messages with timestamps and roles
+            const messages = chatMessages.querySelectorAll('.chat-message');
+            console.log(`Found ${messages.length} messages to save`);
+            
+            if (messages.length === 0) {
+                content += "[No messages in chat history]\n";
+            } else {
+                messages.forEach((message) => {
+                    const isUser = message.classList.contains('user');
+                    const sender = isUser ? 'You' : 'Assistant';
+                    
+                    const messageContent = message.querySelector('.message-content');
+                    const timestamp = message.querySelector('.timestamp');
+                    
+                    if (messageContent && timestamp) {
+                        content += `[${timestamp.textContent.trim()}] ${sender}: ${messageContent.textContent.trim()}\n\n`;
+                    }
+                });
+            }
+            
+            // Create download using Blob
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            
+            // Create and trigger download link
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.style.display = 'none';
+            
+            document.body.appendChild(a);
+            a.click();
+            
+            // Clean up
+            setTimeout(() => {
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                console.log("Chat history downloaded successfully");
+            }, 100);
+            
+            // Show feedback to user
+            const downloadBtn = document.getElementById('download-chat');
+            if (downloadBtn) {
+                const originalText = downloadBtn.textContent;
+                downloadBtn.textContent = '✓ Downloaded!';
+                downloadBtn.classList.add('button-success');
+                
+                setTimeout(() => {
+                    downloadBtn.textContent = originalText;
+                    downloadBtn.classList.remove('button-success');
+                }, 2000);
+            }
+            
+        } catch (error) {
+            console.error("Error downloading chat:", error);
+            alert("Failed to download chat: " + error.message);
+        }
+    }
+
+    // Call the initialization immediately and also add it to existing setup
+    document.addEventListener('DOMContentLoaded', fixDownloadButton);
+    setTimeout(fixDownloadButton, 1000); // Also try again after a delay
 })();
